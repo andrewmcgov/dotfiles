@@ -98,6 +98,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+alias amend='git commit --amend --no-edit'
 
 [ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
 if [ -e /Users/andrewmcgoveran/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/andrewmcgoveran/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
