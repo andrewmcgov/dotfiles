@@ -11,4 +11,4 @@ config config --local status.showUntrackedFiles no
 echo "alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.bashrc
 ```
 
-This will alias `commit` to run git in your dotfiles repo.
+This will alias `config` to run git in your dotfiles repo.
