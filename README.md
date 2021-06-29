@@ -1,14 +1,15 @@
 # dotfiles
 
-Based on [this article](https://www.atlassian.com/git/tutorials/dotfiles) on how to save dotfiles.
+Based on [this article](http://blog.smalleycreative.com/tutorials/using-git-and-github-to-manage-your-dotfiles/) on how to save dotfiles.
 
-To start from scratch, run this:
+To set up these dotfiles on a new machine, run this:
 
 ```bash
-git init --bare $HOME/.cfg
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-config config --local status.showUntrackedFiles no
-echo "alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> $HOME/.bashrc
+git clone https://github.com/andrewmcgov/dotfiles
+
+./makesymlinks.sh
 ```
 
-This will alias `config` to run git in your dotfiles repo.
+You may need to make `makesymlinks.sh` executable by running `chmod +x makesymlinks.sh`.
+
+After running this, all changes you make will be matched in the `~/dotfiles` folder and you can commit them to git as normal.
