@@ -139,26 +139,9 @@ module.exports = {
     webGLRenderer: false,
 
     // for advanced config flags please refer to https://hyper.is/#cfg
-    MaterialTheme: {
-      // Set the theme variant,
-      // OPTIONS: 'Darker', 'Palenight', 'Ocean', ''
-      theme: 'Darker',
-
-      // [Optional] Set the rgba() app background opacity, useful when enableVibrance is true
-      // OPTIONS: From 0.1 to 1
-      backgroundOpacity: '1',
-
-      // [Optional] Set the accent color for the current active tab
-      accentColor: '#64FFDA',
-
-      // [Optional] Mac Only. Need restart. Enable the vibrance and blurred background
-      // OPTIONS: 'dark', 'ultra-dark', 'bright'
-      // NOTE: The backgroundOpacity should be between 0.1 and 0.9 to see the effect.
-      vibrancy: 'dark',
-    },
     hyperBorder: {
       borderColors: ['#e06c75', '#e5c07b', '#56b6c2'],
-      borderWidth: '2px',
+      borderWidth: '4px',
     },
   },
 
@@ -168,7 +151,7 @@ module.exports = {
   //   `hyperpower`
   //   `@company/project`
   //   `project#1.0.1`
-  plugins: ['hyperborder', "hyper-dracula"],
+  plugins: ['hyperborder', 'hyper-dracula'],
 
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here

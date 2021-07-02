@@ -1,102 +1,164 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+###
+# Functions
+###
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# These functions are mostly from https://github.com/adamhollett/dotfiles
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="spaceship"
+# Show colorful chevrons according to what season it is.
+chevrons () {
+  local date=$(date)
+  local chevrons="❯❯❯"
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+  case $date in
+    # spring
+    *Mar*|*Apr*|*May*)
+      chevrons="%F{cyan}❯%F{green}❯%F{yellow}❯%f"
+      ;;
+    # summer
+    *Jun*|*Jul*|*Aug*)
+      chevrons="%F{green}❯%F{yellow}❯%F{red}❯%f"
+      ;;
+    # fall
+    *Sep*|*Oct*|*Nov*)
+      chevrons="%F{yellow}❯%F{red}❯%F{magenta}❯%f"
+      ;;
+    # winter
+    *Dec*|*Jan*|*Feb*)
+      chevrons="%F{magenta}❯%F{cyan}❯%F{green}❯%f"
+      ;;
+    *)
+      ;;
+  esac
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+  echo $chevrons
+}
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+# Return the branch name if we're in a git repo, or nothing otherwise.
+git_check () {
+  local gitBranch=$(git branch 2> /dev/null | sed -e "/^[^*]/d" -e "s/* \(.*\)/\1/")
+  if [[ $gitBranch ]]; then
+    echo -en $gitBranch
+    return
+  fi
+}
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+# Return the status of the current git repo.
+git_status () {
+  local gitBranch="$(git_check)"
+  if [[ $gitBranch ]]; then
+    local statusCheck=$(git status 2> /dev/null)
+    if [[ $statusCheck =~ 'Your branch is ahead' ]]; then
+      echo -en 'ahead'
+    elif [[ $statusCheck =~ 'Changes to be committed' ]]; then
+      echo -en 'staged'
+    elif [[ $statusCheck =~ 'no changes added' ]]; then
+      echo -en 'modified'
+    elif [[ $statusCheck =~ 'working tree clean' ]]; then
+      echo -en 'clean'
+    fi
+  fi
+}
 
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
+# Return a color based on the current git status.
+git_status_color () {
+  local gitStatus="$(git_status)"
+  local statusText=''
+  case $gitStatus in
+    clean*)
+      statusText="green"
+      ;;
+    modified*)
+      statusText="magenta"
+      ;;
+    staged*)
+      statusText="yellow"
+      ;;
+    ahead*)
+      statusText="cyan"
+      ;;
+    *)
+      statusText="white"
+      ;;
+  esac
+  echo -en $statusText
+}
 
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+# Print a label for the current git branch if it isn't master.
+git_branch () {
+  local gitBranch="$(git_check)"
+  if [[ $gitBranch ]]; then
+    echo -en "%F{"$(git_status_color)"}⌥ $gitBranch%f"
+  fi
+}
 
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS=true
+# Print a dot indicating the current git status.
+git_dot () {
+  local gitCheck="$(git_check)"
+  if [[ $gitCheck ]]; then
+    local gitStatus="$(git_status)"
+    local gitStatusDot='●'
+    if [[ $gitStatus == 'staged' ]]; then
+      local gitStatusDot='◍'
+    elif [[ $gitStatus == 'modified' ]]; then
+      local gitStatusDot='○'
+    fi
+    if [[ $gitCheck && ! $gitCheck == 'master' && $COLUMNS -lt 80 ]]; then
+      echo -en "%F{#616161}⌥%f"
+    fi
+    echo -en "%F{"$(git_status_color)"}$gitStatusDot%f"
+  fi
+}
 
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
+# Get the current directory, truncate it, and make it blue
+fancy_dir () {
+  echo -en "%F{cyan}%2~%f"
+  return
+}
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+# Get the formatted prompt
+get_prompt() {
+  local currentGitBranch=$(git_branch)
+  local currentDir="$(fancy_dir)"
 
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
+  if [[ -z $currentGitBranch ]]; then
+    echo "$currentDir $(chevrons) "
+    return
+  fi
 
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
+  echo "$currentDir $(git_dot) $currentGitBranch$NEWLINE$(chevrons) "
+}
 
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+NEWLINE='
+'
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+###
+# Set options
+###
+setopt AUTO_CD
+setopt prompt_subst
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
+# load compinit and promptinit
+autoload -Uz compinit promptinit
 
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+# initialize advanced tab completion
+compinit -i
 
-source $ZSH/oh-my-zsh.sh
+# make tab completeion case-insensitive
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
-# User configuration
+# highlight the selected suggestion when tabbing through tab completion options
+zstyle ':completion:*' menu select
 
-# export MANPATH="/usr/local/man:$MANPATH"
+# initialize advanced prompt support
+promptinit
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+# set the prompt
+PS1='%B$(get_prompt)%b'
 
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='/Applications/Visual Studio Code.app'
-# else
-#   export EDITOR='/Applications/Visual Studio Code.app'
-# fi
 
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+###
+# Aliases
+###
 alias amend='git commit --amend --no-edit'
 
 [ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
