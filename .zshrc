@@ -33,6 +33,15 @@ chevrons () {
   echo $chevrons
 }
 
+# Check if hostname includes 'spin' and return an emoji accordingly
+function check_hostname() {
+  if [[ `hostname` == *"spin"* ]]; then
+    echo "🌀 "
+  else
+    echo ""
+  fi
+}
+
 # Return the branch name if we're in a git repo, or nothing otherwise.
 git_check () {
   local gitBranch=$(git branch 2> /dev/null | sed -e "/^[^*]/d" -e "s/* \(.*\)/\1/")
@@ -121,11 +130,11 @@ get_prompt() {
   local currentDir="$(fancy_dir)"
 
   if [[ -z $currentGitBranch ]]; then
-    echo "$currentDir $(chevrons) "
+    echo "$(check_hostname)$currentDir $(chevrons) "
     return
   fi
 
-  echo "$currentDir $(git_dot) $currentGitBranch$NEWLINE$(chevrons) "
+  echo "$(check_hostname)$currentDir $(git_dot) $currentGitBranch$NEWLINE$(chevrons) "
 }
 
 NEWLINE='
@@ -163,3 +172,7 @@ alias amend='git commit --amend --no-edit'
 
 [ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
 if [ -e /Users/andrewmcgoveran/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/andrewmcgoveran/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+
+[[ -f /opt/dev/sh/chruby/chruby.sh ]] && type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; }
+
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
